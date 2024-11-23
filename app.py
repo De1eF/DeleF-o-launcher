@@ -53,7 +53,7 @@ def GUI():
     m = ThemedTk(theme="equilux")
     m.geometry(f"200x300")
     m.config(bg="gray20")
-    m.title("Its a launcher")
+    m.title("Delef-o-launcher")
     m.resizable(False, False)
     
     bg = PhotoImage(file = "background.png")

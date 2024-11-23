@@ -1,0 +1,2 @@
+./myenv/Scripts/activate
+pyinstaller --onefile --add-data "icon.ico:." --add-data "background.png:." --icon=icon.ico main.py

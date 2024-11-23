@@ -1,0 +1,9 @@
+assets/**
+build/**
+config/**
+libraries/**
+logs/**
+myenv/**
+libraries/**
+versions/**
+myenv/**

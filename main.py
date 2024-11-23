@@ -11,6 +11,7 @@ import json
 import sys
 from threading import Thread
 from tkinter import StringVar
+import shutil
 
 def boot():
     latest_version = "1.21.1"
@@ -67,15 +68,18 @@ def boot():
             minecraft_launcher_lib.install.install_minecraft_version(latest_version, minecraft_directory, callback=callback)
             callbacks["onStageChange"]("Fabric")
             minecraft_launcher_lib.fabric.install_fabric(latest_version, minecraft_directory, callback=callback)
-            callback["setProgress"](30)
+            callbacks["whenInstall"](30)
             callbacks["onStageChange"]("Mods")
-            downloadZip("1d82sNK8T_P9lC-XFvhrumYgyI6rBQvj5", minecraft_directory + "/mods.zip")
-            callback["setProgress"](60)
+            deleteFolderContentes(minecraft_directory + "/mods")
+            downloadZip("1d82sNK8T_P9lC-XFvhrumYgyI6rBQvj5", minecraft_directory + "/mods.zip", "/mods")
+            callbacks["whenInstall"](60)
             callbacks["onStageChange"]("Resourcepacks")
-            downloadZip("1leIHo3DxbhwNEsKGs9HXLSqyKmXOgmkJ", minecraft_directory + "/resourcepacks.zip")
-            callback["setProgress"](90)
+            deleteFolderContentes(minecraft_directory + "/resourcepacks")
+            downloadZip("1leIHo3DxbhwNEsKGs9HXLSqyKmXOgmkJ", minecraft_directory + "/resourcepacks.zip", "/resourcepacks")
+            callbacks["whenInstall"](90)
             callbacks["onStageChange"]("Shaderpacks")
-            downloadZip("1OGSX64CGgIgDeoVNMD6ta1C1ohz8v-zA", minecraft_directory + "/shaderpacks.zip")
+            deleteFolderContentes(minecraft_directory + "/shaderpacks")
+            downloadZip("1OGSX64CGgIgDeoVNMD6ta1C1ohz8v-zA", minecraft_directory + "/shaderpacks.zip", "/shaderpacks")
             
             callbacks["onEnd"]()
         thread = Thread(target=lambda: install(callbacks))
@@ -91,25 +95,37 @@ def boot():
         # Start Minecraft
         subprocess.run(minecraft_command)
 
-    def downloadZip(file_id, destination):
+    def downloadZip(file_id, destination, folderName):
         url = 'https://drive.google.com/uc?id=' + file_id
         gdown.download(url, destination, quiet=False, fuzzy=True)
         
         print("finished downloading")
         
-        dir_name = minecraft_directory + '/mods'
+        dir_name = minecraft_directory + folderName
         zip_ref = zipfile.ZipFile(destination) # create zipfile object
         zip_ref.extractall(dir_name) # extract file to dir
         zip_ref.close() # close file
         os.remove(destination) # delete zipped file
-                
+    
+    def deleteFolderContentes(folder: str):
+        if not os.path.exists(folder):
+            return
+        for filename in os.listdir(folder):
+            file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete, reason:', e)    
 
     def GUI():
         #Window
         m = ThemedTk(theme="equilux")
         m.geometry(f"200x300")
         m.config(bg="gray20")
-        m.title("Delef-o-launcher")
+        m.title("DeleF-o-launcher")
         m.resizable(False, False)
         m.iconbitmap(resource_path("icon.ico"))
         

@@ -2,6 +2,7 @@ import minecraft_launcher_lib
 import subprocess
 from tkinter import ttk
 from tkinter import PhotoImage
+from tkinter import filedialog
 import tkinter as tk
 from ttkthemes import *
 import gdown
@@ -18,11 +19,13 @@ def boot():
     fabric_version = "fabric-loader-0.16.9-1.21.1"
     configDir = dict()
     
+    #Update a config
     def updateConfig(key: str, value):
         configDir[key] = value
         with open("config.json", "w") as f:
             json.dump(configDir, f)
     
+    #Create the config file if not exists
     if not os.path.isfile("config.json"):
         updateConfig("path","C:/DeleF-o-launcher")
         updateConfig("username", "Steve")
@@ -32,6 +35,7 @@ def boot():
         configDir = json.loads(f.read())
     minecraft_directory = configDir["path"]
     
+    #Accessing resource folder to access from packed exe
     def resource_path(relative_path):
         try:
             base_path = sys._MEIPASS
@@ -145,11 +149,18 @@ def boot():
         ntry_username.insert("0", configDir["username"])
         
         #Path entry
-        pathStringVar = StringVar()
-        pathStringVar.trace_add("write", lambda a,b,c: {updateConfig("path", pathStringVar.get())})
-        ntry_install = ttk.Entry(m, textvariable = pathStringVar)
-        ntry_install.place(relx=0.5, y=100, anchor="center", width=100, height=30)
-        ntry_install.insert("0",minecraft_directory)
+        pathLabel = ttk.Label(m)
+        pathLabel.place(relx=0.5, x=-30, y=100, anchor="center", width=65, height=30)
+        pathLabel.config(text=configDir["path"])
+        
+        #Browse button
+        def select_directory():
+            dir_name = filedialog.askdirectory()
+            updateConfig("path", dir_name)
+            pathLabel.config(text=configDir["path"])
+            return dir_name
+        btn_browse = ttk.Button(m, text="Browse", command=lambda:select_directory())
+        btn_browse.place(relx=0.5, x=30, y=100, anchor="center", width=65)
         
         #Launch button
         btn_launch = ttk.Button(m, text="Launch", command=launch)
